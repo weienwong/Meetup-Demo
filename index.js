@@ -1,7 +1,7 @@
-require('dotenv').config()
-
 const SDK = require('@zesty-io/sdk')
 const https = require('https')
+
+require('dotenv').config()
 
 const DEV_TOKEN = process.env.DEV_TOKEN
 const INSTANCE_ZUID = process.env.INSTANCE_ZUID
@@ -11,7 +11,7 @@ const sdk = new SDK(INSTANCE_ZUID, DEV_TOKEN)
 // create a new item
 const payload = {
   data: {
-    temperature: '12.345'
+    moisture: Math.random() * 100
   }
 }
 
@@ -44,23 +44,28 @@ async function publishItem (instanceZUID, modelZUID, itemZUID, version) {
   })
 
   const postData = {
-    version: `${version}`,
+    version: version,
     publishAt: 'now',
     unpublishAt: '2019-12-31'
   }
-  req.write(postData)
+  req.write(JSON.stringify(postData))
   req.end()
 }
 
-async function main () {
-  const createRes = await sdk.instance.createItem(MODEL_ZUID, payload)
-  if (createRes.statusCode === 201) {
-    const itemZUID = createRes.data.ZUID
-    publishItem(INSTANCE_ZUID, MODEL_ZUID, itemZUID, 1)
-  } else {
-    console.error('failed to create item')
-    console.error(createRes)
+setInterval(() => {
+  const payload = {
+    data: {
+      moisture: `${Math.random() * 100}`
+    }
   }
-}
 
-main()
+  sdk.instance.createItem(MODEL_ZUID, payload).then(res => {
+    if (res.statusCode === 201) {
+      const itemZUID = res.data.ZUID
+      publishItem(INSTANCE_ZUID, MODEL_ZUID, itemZUID, 1)
+    } else {
+      console.error('failed to create item')
+      console.error(res)
+    }
+  })
+}, 5000)
