@@ -8,12 +8,6 @@ const INSTANCE_ZUID = process.env.INSTANCE_ZUID
 const MODEL_ZUID = process.env.MODEL_ZUID
 
 const sdk = new SDK(INSTANCE_ZUID, DEV_TOKEN)
-// create a new item
-const payload = {
-  data: {
-    moisture: Math.random() * 100
-  }
-}
 
 async function publishItem (instanceZUID, modelZUID, itemZUID, version) {
   const options = {
